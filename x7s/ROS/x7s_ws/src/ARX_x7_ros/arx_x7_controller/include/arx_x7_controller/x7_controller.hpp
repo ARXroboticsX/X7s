@@ -21,6 +21,7 @@ public:
   // sub
   void CmdCallbackV1(const arm_control::PosCmd::ConstPtr &msg);
   void CmdCallbackV2(const arm_control::JointControl::ConstPtr &msg);
+  void robotCmdCallback(const arx5_arm_msg::RobotCmd::ConstPtr &msg);
 
   // pub
   void PubState(const ros::TimerEvent &);
@@ -36,6 +37,7 @@ private:
   ros::Publisher joint_state_publisher_;
   ros::Publisher ee_pos_publisher_;
   ros::Subscriber vr_cmd_subscriber_;
+  ros::Subscriber normal_cmd_subscriber_;
   ros::Timer timer_;
 };
 } // namespace arx::x7

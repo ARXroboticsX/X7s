@@ -15,6 +15,7 @@ X7Controller::X7Controller(ros::NodeHandle nh) {
   std::string urdf_path;
   std::string vr_topic_name;
   bool vr = nh.param("vr", true);
+  bool keyboard = nh.param("keyboard", false);
   if (arm_type_ == 0) {
     urdf_path = package_path + "/X7Sleft1.urdf";
     if (vr)
@@ -30,8 +31,12 @@ X7Controller::X7Controller(ros::NodeHandle nh) {
   }
   interfaces_ptr_ = std::make_shared<InterfacesThread>(
       urdf_path, nh.param("arm_can_id", std::string("can0")), arm_type_);
+  interfaces_ptr_->arx_x(500, 2000, 10);
   // sub
-  if (vr)
+  if (keyboard)
+    normal_cmd_subscriber_ = nh.subscribe<arx5_arm_msg::RobotCmd>(
+        "/arm_cmd", 10, &X7Controller::robotCmdCallback, this);
+  else if (vr)
     vr_cmd_subscriber_ = nh.subscribe<arm_control::PosCmd>(
         vr_topic_name, 10, &X7Controller::CmdCallbackV1, this);
   else
@@ -69,6 +74,27 @@ void X7Controller::CmdCallbackV2(
   interfaces_ptr_->setCatch(msg->joint_pos[7]);
 }
 
+void X7Controller::robotCmdCallback(
+    const arx5_arm_msg::RobotCmd::ConstPtr &msg) {
+  double end_pos[6] = {msg->end_pos[0], msg->end_pos[1], msg->end_pos[2],
+                       msg->end_pos[3], msg->end_pos[4], msg->end_pos[5]};
+
+  Eigen::Isometry3d transform = solve::Xyzrpy2Isometry(end_pos);
+
+  interfaces_ptr_->setEndPose(transform);
+
+  std::vector<double> joint_positions = {0, 0, 0, 0, 0, 0};
+
+  for (int i = 0; i < 6; i++) {
+    joint_positions[i] = msg->joint_pos[i];
+  }
+
+  interfaces_ptr_->setJointPositions(joint_positions);
+
+  interfaces_ptr_->setArmStatus(msg->mode);
+
+  interfaces_ptr_->setCatch(msg->gripper);
+}
 // Publisher
 void X7Controller::PubState(const ros::TimerEvent &) {
 

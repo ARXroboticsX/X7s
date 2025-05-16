@@ -1,0 +1,7 @@
+<launch>
+    <node pkg="arx_x7_controller" type="x7_controller" name="left_arm" output="screen">
+        <param name="arm_can_id" value="can0"/>
+        <param name="arm_type" value="0"/>
+        <param name="keyboard" value="true"/>
+    </node>
+</launch>

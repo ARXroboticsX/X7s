@@ -17,16 +17,20 @@ X7Controller::X7Controller() : Node("x7_controller_node") {
 
   interfaces_ptr_ = std::make_shared<InterfacesThread>(urdf_path, this->declare_parameter("arm_can_id", "can0"),
                                                        type);
+  interfaces_ptr_->arx_x(500,2000,10);
   std::string vr_sub_topic;
+  std::string cmd_sub_topic;
   std::string status_pub_topic;
   std::string pose_pub_topic;
   if (type == 0) {
     vr_sub_topic = "ARX_VR_L";
+    cmd_sub_topic = "/joint_control";
     status_pub_topic = "joint_information";
     pose_pub_topic = "follow1_pos_back";
   }
   else {
     vr_sub_topic = "ARX_VR_R";
+    cmd_sub_topic = "/joint_control2";
     status_pub_topic = "joint_information2";
     pose_pub_topic = "follow2_pos_back";
   }
@@ -41,7 +45,7 @@ X7Controller::X7Controller() : Node("x7_controller_node") {
         std::bind(&X7Controller::VrCmdCallback, this, std::placeholders::_1));
   else
     joint_state_subscriber_ = this->create_subscription<arm_control::msg::JointControl>(
-        vr_sub_topic, 10,
+        cmd_sub_topic, 10,
         std::bind(&X7Controller::CmdCallback, this, std::placeholders::_1));
   // 定时器，用于发布关节信息
   timer_ = this->create_wall_timer(std::chrono::milliseconds(1), std::bind(&X7Controller::VrPubState, this));
