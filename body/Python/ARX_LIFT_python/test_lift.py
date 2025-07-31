@@ -3,7 +3,7 @@ import arx_lift_python as arx
 import time
 import pygame
 
-control_loop = arx.LiftHeadControlLoop("can5")
+control_loop = arx.LiftHeadControlLoop("can5",arx.RobotType.X7S)
 pygame.init()
 pygame.joystick.init()
 joystick = pygame.joystick.Joystick(0)
@@ -17,6 +17,10 @@ while(1):
         running_state = 1
     if (joystick.get_button(1) == 1):
         running_state = 2
+    print("head_yaw:"+"%f"%control_loop.get_head_yaw())
+    print("head_pitch:"+"%f"%control_loop.get_head_pitch())
+    print("height:"+"%f"%control_loop.get_height())
+    control_loop.get_height()
     control_loop.set_head_yaw(0.0)
     control_loop.set_head_pitch(0.0)
     control_loop.set_waist_pos(0.0)

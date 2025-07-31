@@ -5,6 +5,7 @@ find_package(catkin REQUIRED COMPONENTS
         roscpp
         arm_control
         sensor_msgs
+        realtime_tools
 )
 
 catkin_package()

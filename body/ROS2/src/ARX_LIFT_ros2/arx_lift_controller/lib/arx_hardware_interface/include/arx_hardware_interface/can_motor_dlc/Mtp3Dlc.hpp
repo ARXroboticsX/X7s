@@ -8,60 +8,55 @@
 
 #include <stdio.h>
 
-#include <cmath>
 #include <chrono>
+#include <cmath>
 
+namespace arx {
+namespace hw_interface {
+class MotorType3 : public MotorDlcBase {
+public:
+  MotorType3(int motor_id) : motor_id_(motor_id) {};
 
-namespace arx
-{
-    namespace hw_interface
-    {
-        class MotorType3 : public MotorDlcBase
-        {
-        public:
-            MotorType3(int motor_id) : motor_id_(motor_id)
-            {
-            };
+  CanFrame packMotorMsg(HybridJointCmd *command) override;
+  CanFrame packMotorMsg(double k_p, double k_d, double position,
+                        double velocity, double torque) override;
 
-            CanFrame packMotorMsg(HybridJointCmd* command);
-            CanFrame packMotorMsg(double k_p, double k_d, double position, double velocity, double torque);
+  CanFrame packEnableMotor() override;
+  CanFrame packSetZero() override;
+  CanFrame packDisableMotor() override;
+  CanFrame packClearError() override;
 
-            CanFrame packEnableMotor();
-            CanFrame packSetZero();
-            CanFrame packDisableMotor();
+  void CanAnalyze(CanFrame *frame) override; // 尝试接收电机数据
+  void resetCircle() override;
 
-            void CanAnalyze(CanFrame* frame) override; // 尝试接收电机数据
-            void resetCircle();
+  HybridJointStatus GetMotorMsg() override;
+  bool online() override {
+    std::chrono::time_point<std::chrono::system_clock> now =
+        std::chrono::system_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::microseconds>(
+        now - last_update_time_);
+    if (duration.count() > 100000)
+      online_ = false;
+    return online_;
+  }
+  void ExchangeMotorMsg() override;
 
-            HybridJointStatus GetMotorMsg();
-            bool online() override
-            {
-              std::chrono::time_point<std::chrono::system_clock> now = std::chrono::system_clock::now();
-              auto duration = std::chrono::duration_cast<std::chrono::microseconds>(now - last_update_time_);
-              if (duration.count() > 100000)
-                online_ = false;
-              return online_;
-            }
-            void ExchangeMotorMsg();
+private:
+  double position_;
+  double velocity_;
+  double current_;
+  bool online_{true};
+  std::chrono::system_clock::time_point last_update_time_;
 
-        private:
-            double restrictBound(double num, double max, double min);
+  double position_exchange_ = 0;
+  double last_q_raw_ = 0;
+  int circle_ = 0;
+  double velocity_exchange_ = 0;
+  double current_exchange_ = 0;
+  std::chrono::system_clock::time_point last_update_time_exchange_;
 
-            double position_;
-            double velocity_;
-            double current_;
-            bool online_{true};
-            std::chrono::system_clock::time_point last_update_time_;
-
-            double position_exchange_;
-            double last_q_raw_;
-            int circle_ = 0;
-            double velocity_exchange_;
-            double current_exchange_;
-            std::chrono::system_clock::time_point last_update_time_exchange_;
-
-            CanFrame* frame_;
-            int motor_id_;
-        };
-    }
-}
+  CanFrame *frame_;
+  int motor_id_;
+};
+} // namespace hw_interface
+} // namespace arx

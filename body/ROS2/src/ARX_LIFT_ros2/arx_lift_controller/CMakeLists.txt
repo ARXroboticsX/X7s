@@ -11,12 +11,13 @@ find_package(ament_cmake REQUIRED)
 find_package(rclcpp REQUIRED)
 find_package(arm_control REQUIRED)
 find_package(sensor_msgs REQUIRED)
+find_package(tf2 REQUIRED)
 
 link_directories(${CMAKE_CURRENT_SOURCE_DIR}/lib/arx_hardware_interface ${CMAKE_CURRENT_SOURCE_DIR}/lib/arx_lift_src)
 add_executable(lift_controller src/lift_controller.cpp)
 target_include_directories(lift_controller PUBLIC
         lib/arx_hardware_interface/include lib/arx_lift_src/include)
-ament_target_dependencies(lift_controller rclcpp arm_control sensor_msgs)
+ament_target_dependencies(lift_controller rclcpp arm_control sensor_msgs tf2)
 
 install(TARGETS
         lift_controller
