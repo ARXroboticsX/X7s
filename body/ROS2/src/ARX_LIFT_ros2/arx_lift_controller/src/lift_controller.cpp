@@ -35,8 +35,8 @@ int main(int argc, char **argv) {
                                                                    collect = true;
                                                                    control_loop->setHeight(msg.height);
                                                                    control_loop->setWaistPos(msg.temp_float_data[0]);
-                                                                   control_loop->setHeadYaw(msg.head_yaw);
-                                                                   control_loop->setHeadPitch(-msg.head_pit);
+                                                                  //  control_loop->setHeadYaw(msg.head_yaw);
+                                                                  //  control_loop->setHeadPitch(-msg.head_pit);
                                                                    if (robot_type == 0)
                                                                      control_loop->setChassisCmd(msg.chx / 2.5,
                                                                                                  -msg.chy / 2.5,
@@ -84,6 +84,9 @@ int main(int argc, char **argv) {
   rclcpp::Rate loop_rate(400);
   while (rclcpp::ok()) {
     control_loop->loop();
+    control_loop->setHeadYaw(0);
+    control_loop->setHeadPitch(0.5);
+
     if ((rclcpp::Clock().now() - last_cb_time).seconds() > 0.3 && !collect) {
       control_loop->setChassisCmd(0, 0, 0, 2);
       control_loop->setWheelVel(0, 0, 0, 0);
