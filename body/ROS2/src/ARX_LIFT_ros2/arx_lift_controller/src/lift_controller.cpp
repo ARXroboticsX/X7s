@@ -55,8 +55,8 @@ int main(int argc, char **argv) {
     last_cb_time = rclcpp::Clock().now();
     control_loop->setHeight(msg.height);
     control_loop->setWaistPos(msg.temp_float_data[0]);
-    control_loop->setHeadYaw(msg.head_yaw);
-    control_loop->setHeadPitch(-msg.head_pit);
+    // control_loop->setHeadYaw(msg.head_yaw);
+    // control_loop->setHeadPitch(-msg.head_pit);
     control_loop->setWheelVel(msg.temp_float_data[1], msg.temp_float_data[2],
                              msg.temp_float_data[3], msg.temp_float_data[4]);
     control_loop->setChassisCmd(0, 0, 0, msg.mode1);
